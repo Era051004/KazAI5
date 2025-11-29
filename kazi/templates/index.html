@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KazAI - Система Матрицы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="matrix-bg" id="matrixBg"></div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="glitch" data-text="KazAI">KazAI</h1>
+                    <div class="subtitle">>> СИСТЕМА ИСКУССТВЕННОГО ИНТЕЛЛЕКТА МАТРИЦЫ</div>
+                </div>
+                <div class="header-actions">
+                    <a href="{{ url_for('clear_chat') }}" class="btn btn-primary">НОВЫЙ ЧАТ</a>
+                    <a href="{{ url_for('test_identity') }}" class="btn btn-secondary" target="_blank">ТЕСТ СИСТЕМЫ</a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="chatArea">
+                {% if not chat_history %}
+                <div class="empty-state">
+                    <h3>>> СИСТЕМА KAZAI АКТИВИРОВАНА</h3>
+                    <p>> Добро пожаловать в Матрицу. Начните диалог...</p>
+                </div>
+                {% else %}
+                    {% for msg in chat_history %}
+                    <div class="message {{ 'user-message' if msg.type == 'user' else 'ai-message' }}">
+                        <div class="message-header">
+                            <div class="message-avatar">
+                                {{ '>' if msg.type == 'user' else '>>' }}
+                            </div>
+                            {{ 'USER' if msg.type == 'user' else 'SYSTEM' }}
+                        </div>
+                        <div class="message-content">
+                            {% if msg.type == 'ai' %}
+                                {{ msg.content|safe }}
+                            {% else %}
+                                {{ msg.content }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                    > СИСТЕМА ТИПИЗИРУЕТ
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inputContainer">
+                <div class="input-wrapper">
+                    <textarea
+                        id="userInput"
+                        placeholder="> ВВЕДИТЕ СООБЩЕНИЕ... (ENTER ДЛЯ ОТПРАВКИ, SHIFT+ENTER ДЛЯ НОВОЙ СТРОКИ)"
+                        rows="1"
+                    ></textarea>
+                    <button id="sendBtn" title="ОТПРАВИТЬ В МАТРИЦУ">
+                        >>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Matrix rain effect
+        function createMatrixRain() {
+            const characters = '01010101010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const bg = document.getElementById('matrixBg');
+
+            for (let i = 0; i < 50; i++) {
+                const binary = document.createElement('div');
+                binary.className = 'binary-rain';
+                binary.textContent = characters.charAt(Math.floor(Math.random() * characters.length));
+                binary.style.left = Math.random() * 100 + 'vw';
+                binary.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                binary.style.animationDelay = Math.random() * 5 + 's';
+                binary.style.opacity = Math.random() * 0.5 + 0.1;
+                bg.appendChild(binary);
+
+                // Remove element after animation
+                setTimeout(() => {
+                    binary.remove();
+                }, 10000);
+            }
+        }
+
+        // Create initial rain
+        createMatrixRain();
+
+        // Continue creating rain
+        setInterval(createMatrixRain, 200);
+
+        // Terminal-like typing effect for empty state
+        document.addEventListener('DOMContentLoaded', function() {
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                const text = emptyState.querySelector('p').textContent;
+                emptyState.querySelector('p').textContent = '';
+                let i = 0;
+                const typeWriter = () => {
+                    if (i < text.length) {
+                        emptyState.querySelector('p').textContent += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 50);
+                    }
+                };
+                setTimeout(typeWriter, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
